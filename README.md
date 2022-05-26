@@ -1,4 +1,4 @@
-# DevOps-project12
+# ANSIBLE REFACTORING, ASSIGNMENTS & IMPORTS
 
 # Step 1: Jenkins Job Enhancement
 - Created a new directory called ansible-config-artifact to store all artifacts after each build and changed the permissions of the file by running 
@@ -62,7 +62,7 @@
     - name: Clone tooling app repo
       become: yes
       git:
-        repo: "https://github.com/Anefu/tooling.git"
+        repo: "https://github.com/Ellawangari/tooling.git"
         dest: ~/app
         version: "HEAD"
 
