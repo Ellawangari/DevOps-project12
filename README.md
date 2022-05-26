@@ -34,3 +34,75 @@
  -  Once the playbook completed succesfully checked the webservers to ensure wireshark was installled succesfully.
  -  ![alt text](https://github.com/Ellawangari/DevOps-project12/blob/main/imgs/11.PNG)
 
+# Step 3: Configure UAT Webservers with a webserver role
+
+- Launched two RHEL 8 servers named Web1-UAT and Web2-UAT
+- Created a webserver role busing the following command
+-```mkdir roles (in the root directory of your repo)
+    cd roles
+    ansible-galaxy init webserver```
+ - Updated my ansible-config-mgt/inventory/uat.yml with the private IP address of the UAT webservers
+ -  -  ![alt text](https://github.com/Ellawangari/DevOps-project12/blob/main/imgs/12.PNG)
+ -  Edited roles/webserver/tasks/main.yml file to do the following:
+  - Installed and configured Apache
+  - Cloned tooling website from my GitHub repo
+  - Ensured that tooling/html is deployed to /var/www/html
+  - Made sure httpd service is started
+    ```
+    ---
+    # tasks file for webserver
+    - name: Install Apache and Git
+      become: yes
+      yum:
+        name:
+          - httpd
+          - git
+        state: present
+
+    - name: Clone tooling app repo
+      become: yes
+      git:
+        repo: "https://github.com/Anefu/tooling.git"
+        dest: ~/app
+        version: "HEAD"
+
+    - name: Copy app to /var/www/html
+      become: yes
+      copy:
+        src: ~/app/html
+        dest: /var/www
+        remote_src: yes
+        mode: "777"
+        owner: apache
+
+    - name: Make sure httpd service is running
+      become: yes
+      service:
+        name: httpd
+        state: started
+    ```
+ # Step 4: Reference Webserver role
+ Within static-assignments folder,I created a new file uat-webservers.yml and added the following lines
+    ```
+    ---
+    - hosts: uat-webservers
+      roles:
+         - webserver
+    ```
+    ## and edited my site.yml like so:
+    ```
+    ---
+    - hosts: all
+    - import_playbook: ../static-assignments/common.yml
+
+    - hosts: uat-webservers
+    - import_playbook: ../static-assignments/uat-webservers.yml```
+ 
+
+# Step 5: Commit and test
+- Commited my changes to the refactor branch and push to GitHub, create a pull request and merge with the master branch
+-  ![alt text](https://github.com/Ellawangari/DevOps-project12/blob/main/imgs/14.PNG)
+- Ran the playbook against my UAT servers
+ -  ![alt text](https://github.com/Ellawangari/DevOps-project12/blob/main/imgs/15.PNG)
+ -  Accessed the webserver succesfully
+ -   -  ![alt text](https://github.com/Ellawangari/DevOps-project12/blob/main/imgs/16.PNG)
